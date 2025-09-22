@@ -1,11 +1,17 @@
 ---
 # system
-- name: install system packages
+- name: update all present system packages
+  become: true
+  pacman:
+    update_cache: true
+    upgrade: true
+  register: upgrade
+  changed_when: upgrade.packages is defined
+- name: install target system packages
   become: true
   package:
     state: present
-    name: "{{ package_list.system }}"
-    update_cache: true
+    name: "{{ package_list.system.values() | list | flatten }}"
 
 # flatpak
 - name: delete the system flathub remote
@@ -18,9 +24,10 @@
     name: flathub
     flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
     method: user
-- name: install flatpak apps
+- name: install/update flatpak apps
   flatpak:
     method: user
+    state: latest
     name: "{{ package_list.flatpak }}"
 
 # aur
@@ -32,7 +39,7 @@
     line: "PACMAN_AUTH=('doas')"
 - name: gather aur package facts
   package_facts:
-- name: install aur packages
+- name: install/update aur packages
   loop: "{{ package_list.aur }}"
   include_tasks: aur-pkg.yml
   vars:
