@@ -1,5 +1,5 @@
 ---
-- name: check if the directory is already being synced
+- name: check if ~/{{ item.dest }} is already being synced
   stat:
     path: "{{ ansible_env.HOME }}/{{ item.dest }}/.stfolder"
   register: stfolder

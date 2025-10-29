@@ -1,6 +1,12 @@
 ---
-- name: provision the PC
-  hosts: pc
+- name: provision infrastructure
+  hosts: all
+  pre_tasks:
+    - name: merge common vars with host-specific ones
+      loop: "{{ (common_vars | merge_dicts(host_vars) if host_vars is defined else common_vars) | dict2items }}"
+      set_fact:
+        "{{ item.key }}": "{{ item.value }}"
+      tags: always
   roles:
     # establish connection to the internet, enable the firewall and establish ssh connection to the home server
     - role: network
@@ -10,6 +16,10 @@
     - role: packages
       tags: packages
 
+    # check if the home server backup has been restored and set up syncthing directories for pc
+    - role: file-sync
+      tags: file-sync
+
     # clone personal git repositories from the home server & configure them
     - role: git-repos
       tags: git-repos
@@ -17,10 +27,6 @@
     # set up any required configuration files
     - role: config
       tags: config
-
-    # set up file sync from the home server
-    - role: file-sync
-      tags: file-sync
 
     # configure and enable any necessary services
     - role: services
