@@ -5,7 +5,7 @@
     dest: "{{ ansible_env.HOME }}/git/aur/{{ package_name }}"
   register: aur_repo
 
-- name: install {{ package_name }}
+- name: install/update {{ package_name }}
   when: aur_repo.changed
   command: makepkg --syncdeps --install --noconfirm
   args:

@@ -1,11 +1,18 @@
 ---
-- name: install rsync on the home server
-  delegate_to: home_server
-  become: true
-  package:
-    state: present
-    name: rsync
+- name: (hs) check if the backup marker exists
+  when: inventory_hostname == "home_server"
+  stat:
+    path: "{{ ansible_env.HOME }}/.rcloned"
+  register: backup_marker
 
-- name: set up syncthing directories
+- name: (hs) fail if the backup marker is missing
+  when:
+    - inventory_hostname == "home_server"
+    - not backup_marker.stat.exists
+  fail:
+    msg: "backup marker missing, please use rclone to restore home server files"
+
+- name: (pc) set up syncthing directories
+  when: inventory_hostname == "pc"
   loop: "{{ syncthing_directories }}"
   include_tasks: syncthing_dir.yml

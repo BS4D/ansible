@@ -1,2 +1,6 @@
+StrictHostKeyChecking=accept-new
+{% if inventory_hostname == 'pc' %}
+
 Host {{ secrets.home_server.hostname}}
   User {{ secrets.home_server.user }}
+{% endif %}
