@@ -11,13 +11,13 @@
   loop: "{{ git_repositories }}"
   git:
     repo: "{{ secrets.git.remotes.home_server }}/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/git/{{ item }}"
+    dest: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     update: false
 
 - name: configure remotes for all repositories
   loop: "{{ git_repositories }}"
   args:
-    chdir: "{{ ansible_env.HOME }}/git/{{ item }}"
+    chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
   shell: |
     set -e
     old_remotes="$(git remote -v)"
@@ -56,7 +56,7 @@
     - inventory_hostname == "pc"
     - item != "ansible"
   args:
-    chdir: "{{ ansible_env.HOME }}/git/{{ item }}"
+    chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
   shell: git pull --rebase origin $(git branch --show-current)
   register: pull
   changed_when: "'changed' in pull.stdout"
@@ -65,7 +65,7 @@
   loop: "{{ git_repositories }}"
   when: inventory_hostname == "pc"
   args:
-    chdir: "{{ ansible_env.HOME }}/git/{{ item }}"
+    chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
   shell: |
     set -e
     for remote in $(git remote); do
@@ -78,7 +78,7 @@
   when: inventory_hostname == "home_server"
   loop: "{{ git_repositories }}"
   args:
-    chdir: "{{ ansible_env.HOME }}/git/{{ item }}"
+    chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
   shell: git pull --rebase origin $(git branch --show-current)
   register: pull
   changed_when: "'changed' in pull.stdout"

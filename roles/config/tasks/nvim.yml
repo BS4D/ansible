@@ -2,12 +2,12 @@
 - name: clone the nvchad config
   git:
     repo: https://github.com/NvChad/starter
-    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    dest: "{{ ansible_facts.env.HOME }}/.config/nvim"
     update: false
 
 - name: set the gruvbox theme for nvchad
   lineinfile:
-    path: "{{ ansible_env.HOME }}/.config/nvim/lua/chadrc.lua"
+    path: "{{ ansible_facts.env.HOME }}/.config/nvim/lua/chadrc.lua"
     regexp: ^.*\stheme\s=\s.*$
     line: "\ttheme = \"gruvbox\","
 
@@ -15,5 +15,5 @@
   become: true
   file:
     state: link
-    src: "{{ ansible_env.HOME }}/.config/nvim"
+    src: "{{ ansible_facts.env.HOME }}/.config/nvim"
     dest: /root/.config/nvim

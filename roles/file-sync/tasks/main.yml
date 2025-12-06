@@ -2,7 +2,7 @@
 - name: (hs) check if the backup marker exists
   when: inventory_hostname == "home_server"
   stat:
-    path: "{{ ansible_env.HOME }}/.rcloned"
+    path: "{{ ansible_facts.env.HOME }}/.rcloned"
   register: backup_marker
 
 - name: (hs) fail if the backup marker is missing

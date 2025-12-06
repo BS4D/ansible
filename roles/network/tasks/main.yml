@@ -25,7 +25,7 @@
 - name: (pc) create the user ssh key
   when: inventory_hostname == "pc"
   user:
-    name: "{{ ansible_env.USER }}"
+    name: "{{ ansible_facts.env.USER }}"
     generate_ssh_key: true
     ssh_key_type: ed25519
 
@@ -46,6 +46,6 @@
 - name: automatically accept new host keys in ssh connections
   lineinfile:
     create: true
-    path: "{{ ansible_env.HOME }}/.ssh/config"
+    path: "{{ ansible_facts.env.HOME }}/.ssh/config"
     regexp: ^StrictHostKeyChecking
     line: StrictHostKeyChecking=accept-new
