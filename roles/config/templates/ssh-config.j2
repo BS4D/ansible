@@ -1,4 +1,8 @@
 StrictHostKeyChecking=accept-new
+
+Host {{ secrets.backup_server.name}}
+  Hostname {{ secrets.backup_server.hostname}}
+  User {{ secrets.backup_server.user }}
 {% if inventory_hostname == 'pc' %}
 
 Host {{ secrets.home_server.hostname}}
