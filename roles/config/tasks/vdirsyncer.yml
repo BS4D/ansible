@@ -13,8 +13,8 @@
 
 - name: create vdirsyncer collection directories
   loop:
-    - "{{ ansible_env.HOME }}/.vdirsyncer/calendars/default"
-    - "{{ ansible_env.HOME }}/.vdirsyncer/addressbooks/default"
+    - "{{ ansible_facts.env.HOME }}/.vdirsyncer/calendars/default"
+    - "{{ ansible_facts.env.HOME }}/.vdirsyncer/addressbooks/default"
   file:
     state: directory
     path: "{{ item }}"

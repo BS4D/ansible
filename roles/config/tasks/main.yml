@@ -5,12 +5,12 @@
     - { src: ssh-config.j2, dest: .ssh/config }
   template:
     src: "{{ item.src }}"
-    dest: "{{ ansible_env.HOME }}/{{ item.dest }}"
+    dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}"
 
 - name: create ~/.config directory for both users
   loop:
-    - { path: /root,                    become: true }
-    - { path: "{{ ansible_env.HOME }}", become: false }
+    - { path: /root,                          become: true }
+    - { path: "{{ ansible_facts.env.HOME }}", become: false }
   become: "{{ item.become }}"
   file:
     state: directory
@@ -18,8 +18,8 @@
 
 - name: set up zsh for both users
   loop:
-    - { user: root,                     home: /root,                    become: true }
-    - { user: "{{ ansible_env.USER }}", home: "{{ ansible_env.HOME }}", become: false }
+    - { user: root,                           home: /root,                    become: true }
+    - { user: "{{ ansible_facts.env.USER }}", home: "{{ ansible_facts.env.HOME }}", become: false }
   include_tasks: zsh.yml
   args:
     apply:
@@ -44,7 +44,7 @@
   when: inventory_hostname == "pc"
   become: true
   user:
-    name: "{{ ansible_env.USER }}"
+    name: "{{ ansible_facts.env.USER }}"
     groups: docker
     append: true
 
@@ -58,4 +58,4 @@
       [Autologin]
       Relogin=false
       Session=plasmax11
-      User={{ ansible_env.USER }}
+      User={{ ansible_facts.env.USER }}

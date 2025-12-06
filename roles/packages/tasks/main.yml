@@ -45,7 +45,7 @@
 - name: set makepkg config to use doas for privilege escalation
   lineinfile:
     create: true
-    path: "{{ ansible_env.HOME }}/.makepkg.conf"
+    path: "{{ ansible_facts.env.HOME }}/.makepkg.conf"
     regex: ^PACMAN_AUTH=.*$
     line: "PACMAN_AUTH=('doas')"
 - name: gather aur package facts
