@@ -1,5 +1,17 @@
 ---
 # system
+- name: (hs) configure the tailscale repository
+  when: inventory_hostname == "home_server"
+  become: true
+  deb822_repository:
+    name: tailscale
+    state: present
+    types: [deb]
+    uris: "https://pkgs.tailscale.com/stable/raspbian"
+    suites: ["{{ ansible_facts['distribution_release'] | lower }}"]
+    components: [main]
+    signed_by: "https://pkgs.tailscale.com/stable/raspbian/{{ ansible_facts['distribution_release'] | lower }}.noarmor.gpg"
+    install_python_debian: true
 - name: (hs) run system update
   when: inventory_hostname == "home_server"
   become: true
