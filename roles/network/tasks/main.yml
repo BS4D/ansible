@@ -12,6 +12,12 @@
     - ping.failed
   include_tasks: wifi.yml
 
+- name: ensure required network packages are installed
+  become: true
+  package:
+    state: present
+    name: "{{ package_list.system.network }}"
+
 - name: check if firewall is enabled
   become: true
   command: ufw status
