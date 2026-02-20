@@ -7,6 +7,15 @@
       set_fact:
         "{{ item.key }}": "{{ item.value }}"
       tags: always
+
+    - name: update the package manager cache
+      become: true
+      package:
+        update_cache: true
+      changed_when: false
+      tags:
+        - network
+        - packages
   roles:
     - role: network
       tags: network

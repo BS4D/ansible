@@ -16,16 +16,12 @@
   when: inventory_hostname == "home_server"
   become: true
   apt:
-    update_cache: true
     upgrade: dist
 - name: (pc) run system update
   when: inventory_hostname == "pc"
   become: true
   pacman:
-    update_cache: true
     upgrade: true
-  register: upgrade
-  changed_when: upgrade.packages is defined
 - name: install target system packages
   become: true
   package:
