@@ -30,7 +30,9 @@
     ssh_key_type: ed25519
 
 - name: (pc) create the home server host entry
-  when: inventory_hostname == "pc"
+  when:
+    - inventory_hostname == "pc"
+    - "'ip' in secrets.home_server"
   become: true
   lineinfile:
     path: /etc/hosts
@@ -39,9 +41,9 @@
 
 - name: (hs) add the pc user public ssh key to authorized keys
   when: inventory_hostname == "home_server"
-  copy:
-    src: "{{ lookup('env', 'HOME') }}/.ssh/id_ed25519.pub"
-    dest: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+  authorized_key:
+    user: "{{ ansible_facts.env.USER }}"
+    key: "{{ lookup('file', lookup ('env', 'HOME') ~ '/.ssh/id_ed25519.pub') }}"
 
 - name: automatically accept new host keys in ssh connections
   lineinfile:
