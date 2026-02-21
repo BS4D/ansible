@@ -7,10 +7,10 @@
     name: tailscale
     state: present
     types: [deb]
-    uris: "https://pkgs.tailscale.com/stable/raspbian"
-    suites: ["{{ ansible_facts['distribution_release'] | lower }}"]
+    uris: "{{ tailscale_deb_url }}"
+    suites: ["{{ debian_release_name }}"]
     components: [main]
-    signed_by: "https://pkgs.tailscale.com/stable/raspbian/{{ ansible_facts['distribution_release'] | lower }}.noarmor.gpg"
+    signed_by: "{{ tailscale_deb.url }}/{{ debian_release_name }}.noarmor.gpg"
     install_python_debian: true
 - name: (hs) run system update
   when: inventory_hostname == "home_server"
