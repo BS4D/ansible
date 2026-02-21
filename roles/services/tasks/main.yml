@@ -42,9 +42,9 @@
   when: inventory_hostname == "pc"
   become: true
   loop:
-    - { var: "OnBootSec", value: '1m' }
-    - { var: "OnUnitActiveSec", value: '5m' }
-    - { var: "AccuracySec", value: '1m' }
+    - {var: "OnBootSec", value: '1m'}
+    - {var: "OnUnitActiveSec", value: '5m'}
+    - {var: "AccuracySec", value: '1m'}
   lineinfile:
     path: "/usr/lib/systemd/user/vdirsyncer.timer"
     regexp: "{{ item.var }}="
@@ -63,8 +63,12 @@
 - name: enable systemd user services
   when: services.user is defined
   loop: "{{ services.user }}"
+  vars:
+    restart_conditions:
+      - "{{ item == 'vdirsyncer.timer' }}"
+      - "{{ vdirsyncer_timer_config.changed }}"
   systemd:
     scope: user
-    state: "{{ 'restarted' if item == 'vdirsyncer.timer' and vdirsyncer_timer_config.changed else 'started' }}"
+    state: "{{ 'restarted' if restart_conditions | all else 'started' }}"
     enabled: true
     name: "{{ item }}"

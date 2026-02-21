@@ -1,16 +1,16 @@
 ---
 - name: set up various config files
   loop:
-    - { src: gitconfig.j2, dest: .gitconfig }
-    - { src: ssh-config.j2, dest: .ssh/config }
+    - {src: gitconfig.j2, dest: .gitconfig}
+    - {src: ssh-config.j2, dest: .ssh/config}
   template:
     src: "{{ item.src }}"
     dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}"
 
 - name: create ~/.config directory for both users
   loop:
-    - { path: /root,                          become: true }
-    - { path: "{{ ansible_facts.env.HOME }}", become: false }
+    - {path: /root, become: true}
+    - {path: "{{ ansible_facts.env.HOME }}", become: false}
   become: "{{ item.become }}"
   file:
     state: directory
@@ -18,8 +18,12 @@
 
 - name: set up zsh for both users
   loop:
-    - { user: root,                           home: /root,                    become: true }
-    - { user: "{{ ansible_facts.env.USER }}", home: "{{ ansible_facts.env.HOME }}", become: false }
+    - {user: root, home: /root, become: true}
+    - {
+      user: "{{ ansible_facts.env.USER }}",
+      home: "{{ ansible_facts.env.HOME }}",
+      become: false
+    }
   include_tasks: zsh.yml
   args:
     apply:
