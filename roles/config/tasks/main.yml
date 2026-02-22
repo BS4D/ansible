@@ -24,8 +24,8 @@
       home: "{{ ansible_facts.env.HOME }}",
       become: false
     }
-  include_tasks: zsh.yml
-  args:
+  include_tasks:
+    file: zsh.yml
     apply:
       become: "{{ item.become }}"
 

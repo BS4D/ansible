@@ -7,6 +7,6 @@
 
 - name: install/update {{ package_name }}
   when: aur_repo.changed
-  command: makepkg --syncdeps --install --noconfirm
-  args:
+  command:
     chdir: "{{ ansible_facts.env.HOME }}/git/aur/{{ package_name }}"
+    cmd: makepkg --syncdeps --install --noconfirm
