@@ -1,14 +1,14 @@
 ---
-- name: (pc) check internet access
-  when: inventory_hostname == "pc"
+- name: (desktop) check internet access
+  when: desktop
   command: ping -c 1 1.1.1.1
   register: ping
   changed_when: false
   ignore_errors: true
 
-- name: (pc) set up the wifi connection
+- name: (desktop) set up the wifi connection
   when:
-    - inventory_hostname == "pc"
+    - desktop
     - ping.failed
   include_tasks: wifi.yml
 
@@ -28,25 +28,25 @@
   when: "'Status: inactive' in firewall.stdout"
   include_tasks: firewall.yml
 
-- name: (pc) create the user ssh key
-  when: inventory_hostname == "pc"
+- name: (desktop) create the user ssh key
+  when: desktop
   user:
     name: "{{ ansible_facts.env.USER }}"
     generate_ssh_key: true
     ssh_key_type: ed25519
 
-- name: (pc) create the home server host entry
+- name: (desktop) create the home server host entry
   when:
-    - inventory_hostname == "pc"
-    - "'ip' in secrets.home_server"
+    - desktop
+    - "'ip' in home_server"
   become: true
   lineinfile:
     path: /etc/hosts
-    regexp: ^.*\s{{ secrets.home_server.hostname }}$
-    line: "{{ secrets.home_server.ip }} {{ secrets.home_server.hostname }}"
+    regexp: ^.*\s{{ home_server.hostname }}$
+    line: "{{ home_server.ip }} {{ home_server.hostname }}"
 
-- name: (hs) add the pc user public ssh key to authorized keys
-  when: inventory_hostname == "home_server"
+- name: (server) add the pc user public ssh key to authorized keys
+  when: server
   authorized_key:
     user: "{{ ansible_facts.env.USER }}"
     key: "{{ lookup('file', lookup ('env', 'HOME') ~ '/.ssh/id_ed25519.pub') }}"

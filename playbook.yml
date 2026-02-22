@@ -1,9 +1,10 @@
 ---
 - name: provision infrastructure
-  hosts: all
+  hosts: "{{ lookup('pipe', 'hostnamectl hostname') }}, server"
+
   pre_tasks:
-    - name: merge common vars with host-specific ones
-      loop: "{{ (common_vars | merge_dicts(host_vars) if host_vars is defined else common_vars) | dict2items }}"
+    - name: set the combined vars dict elements as facts
+      loop: "{{ combined_vars | dict2items }}"
       set_fact:
         "{{ item.key }}": "{{ item.value }}"
       tags: always
@@ -16,6 +17,7 @@
       tags:
         - network
         - packages
+
   roles:
     - role: network
       tags: network

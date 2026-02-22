@@ -13,10 +13,10 @@
     conn_name: home
     ifname: "{{ wifi_interface }}"
     type: wifi
-    ssid: "{{ secrets.home_wifi.ssid }}"
+    ssid: "{{ home_wifi.ssid }}"
     wifi_sec:
       key-mgmt: wpa-psk
-      psk: "{{ secrets.home_wifi.psk }}"
+      psk: "{{ home_wifi.psk }}"
 
 - name: bring up the home wifi connection
   nmcli:

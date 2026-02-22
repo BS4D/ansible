@@ -1,7 +1,7 @@
 ---
 # system
-- name: (hs) configure the tailscale repository
-  when: inventory_hostname == "home_server"
+- name: (server) configure the tailscale repository
+  when: server
   become: true
   deb822_repository:
     name: tailscale
@@ -10,15 +10,15 @@
     uris: "{{ tailscale_deb_url }}"
     suites: ["{{ debian_release_name }}"]
     components: [main]
-    signed_by: "{{ tailscale_deb.url }}/{{ debian_release_name }}.noarmor.gpg"
+    signed_by: "{{ tailscale_deb_url }}/{{ debian_release_name }}.noarmor.gpg"
     install_python_debian: true
-- name: (hs) run system update
-  when: inventory_hostname == "home_server"
+- name: (server) run system update
+  when: server
   become: true
   apt:
     upgrade: dist
-- name: (pc) run system update
-  when: inventory_hostname == "pc"
+- name: (desktop) run system update
+  when: desktop
   become: true
   pacman:
     upgrade: true
@@ -28,8 +28,8 @@
     state: present
     name: "{{ package_list.system.values() | list | flatten }}"
 
-- name: (hs) skip flatpak and aur packages
-  when: inventory_hostname == "home_server"
+- name: (server) skip flatpak and aur packages
+  when: server
   meta: end_role
 
 # flatpak

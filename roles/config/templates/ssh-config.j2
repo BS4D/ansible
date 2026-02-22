@@ -1,10 +1,10 @@
 StrictHostKeyChecking=accept-new
 
-Host {{ secrets.backup_server.name}}
-  Hostname {{ secrets.backup_server.hostname}}
-  User {{ secrets.backup_server.user }}
-{% if inventory_hostname == 'pc' %}
+Host {{ backup_server.name}}
+  Hostname {{ backup_server.hostname}}
+  User {{ backup_server.user }}
+{% if desktop %}
 
-Host {{ secrets.home_server.hostname}}
-  User {{ secrets.home_server.user }}
+Host {{ home_server.hostname}}
+  User {{ home_server.user }}
 {% endif %}

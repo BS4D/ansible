@@ -1,18 +1,18 @@
 ---
-- name: (hs) check if the backup marker exists
-  when: inventory_hostname == "home_server"
+- name: (server) check if the backup marker exists
+  when: server
   stat:
     path: "{{ ansible_facts.env.HOME }}/.rcloned"
   register: backup_marker
 
-- name: (hs) fail if the backup marker is missing
+- name: (server) fail if the backup marker is missing
   when:
-    - inventory_hostname == "home_server"
+    - server
     - not backup_marker.stat.exists
   fail:
     msg: "backup marker missing, please use rclone to restore home server files"
 
-- name: (pc) set up syncthing directories
-  when: inventory_hostname == "pc"
+- name: (desktop) set up syncthing directories
+  when: desktop
   loop: "{{ syncthing_directories }}"
   include_tasks: syncthing_dir.yml

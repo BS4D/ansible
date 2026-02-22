@@ -1,6 +1,6 @@
 ---
-- name: allow ssh connections in the home server firewall
-  when: inventory_hostname == "home_server"
+- name: (server) allow ssh connections in the home server firewall
+  when: server
   become: true
   ufw:
     rule: allow

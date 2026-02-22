@@ -1,6 +1,6 @@
 ---
-- name: (pc) check access to github
-  when: inventory_hostname == "pc"
+- name: (desktop) check access to github
+  when: desktop
   command: ssh -T git@github.com
   register: github_access
   changed_when: false
@@ -10,7 +10,7 @@
 - name: clone all repositories
   loop: "{{ git_repositories }}"
   git:
-    repo: "{{ secrets.git.remotes.home_server }}/{{ item }}"
+    repo: "{{ git.remotes.home_server }}/{{ item }}"
     dest: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     update: false
 
@@ -22,18 +22,18 @@
       and github_access is not skipped
       | lower
     }}"
-    GITHUB_URL: "{{ secrets.git.remotes.github }}/{{ item }}"
-    SERVER_URL: "{{ secrets.git.remotes.home_server }}/{{ item }}"
+    GITHUB_URL: "{{ git.remotes.github }}/{{ item }}"
+    SERVER_URL: "{{ git.remotes.home_server }}/{{ item }}"
   script:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     cmd: git_remote_setup.sh
   register: remote_setup
   changed_when: "'remotes unchanged' not in remote_setup.stdout"
 
-- name: (pc) pull repositories
+- name: (desktop) pull repositories
   loop: "{{ git_repositories }}"
   when:
-    - inventory_hostname == "pc"
+    - desktop
     - item != "ansible"
   args:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
@@ -41,9 +41,9 @@
   register: pull
   changed_when: "'changed' in pull.stdout"
 
-- name: (pc) push to all remotes
+- name: (desktop) push to all remotes
   loop: "{{ git_repositories }}"
-  when: inventory_hostname == "pc"
+  when: desktop
   args:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
   shell: |
@@ -57,8 +57,8 @@
     | reject('match', 'Everything up-to-date')
     | length > 0
 
-- name: (hs) pull repositories
-  when: inventory_hostname == "home_server"
+- name: (server) pull repositories
+  when: server
   loop: "{{ git_repositories }}"
   args:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"

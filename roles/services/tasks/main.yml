@@ -1,6 +1,6 @@
 ---
-- name: (pc) allow kdeconnect traffic in ufw
-  when: inventory_hostname == "pc"
+- name: (desktop) allow kdeconnect traffic in ufw
+  when: desktop
   become: true
   loop:
     - tcp
@@ -17,8 +17,8 @@
     rule: allow
     name: syncthing
 
-- name: (hs) allow syncthing GUI traffic in ufw
-  when: inventory_hostname == "home_server"
+- name: (server) allow syncthing GUI traffic in ufw
+  when: server
   become: true
   ufw:
     rule: allow
@@ -30,16 +30,16 @@
     state: reloaded
   changed_when: false
 
-- name: (pc) sync vdirsyncer with the dav server
-  when: inventory_hostname == "pc"
+- name: (desktop) sync vdirsyncer with the dav server
+  when: desktop
   shell: |
     vdirsyncer discover
     vdirsyncer sync
   register: vdirsyncer_sync
   changed_when: "'uploading' in vdirsyncer_sync.stderr"
 
-- name: (pc) configure the vdirsyncer timer service
-  when: inventory_hostname == "pc"
+- name: (desktop) configure the vdirsyncer timer service
+  when: desktop
   become: true
   loop:
     - {var: "OnBootSec", value: '1m'}

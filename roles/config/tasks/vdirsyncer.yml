@@ -1,8 +1,8 @@
 ---
 - name: add dav password to the python keyring
   environment:
-    DAV_USER: "{{ secrets.dav.username }}"
-    DAV_PASSWORD: "{{ secrets.dav.password }}"
+    DAV_USER: "{{ dav.username }}"
+    DAV_PASSWORD: "{{ dav.password }}"
   script:
     cmd: set_dav_password.py
   register: dav_password
