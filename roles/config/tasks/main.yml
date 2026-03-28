@@ -38,11 +38,11 @@
 
 - name: (desktop) set up neovim
   when: desktop
-  include_tasks: nvim.yml
+  import_tasks: nvim.yml
 
 - name: (desktop) set up vdirsyncer
   when: desktop
-  include_tasks: vdirsyncer.yml
+  import_tasks: vdirsyncer.yml
 
 - name: (desktop) add user to the docker group
   when: desktop

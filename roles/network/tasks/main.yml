@@ -10,7 +10,7 @@
   when:
     - desktop
     - ping.failed
-  include_tasks: wifi.yml
+  import_tasks: wifi.yml
 
 - name: ensure required network packages are installed
   become: true
@@ -26,7 +26,7 @@
 
 - name: set up the firewall
   when: "'Status: inactive' in firewall.stdout"
-  include_tasks: firewall.yml
+  import_tasks: firewall.yml
 
 - name: (desktop) create the user ssh key
   when: desktop
