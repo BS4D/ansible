@@ -22,16 +22,29 @@
   become: true
   apt:
     upgrade: dist
+  register: apt_upgrade
 - name: (desktop) run system update
   when: desktop
   become: true
   pacman:
     upgrade: true
+  register: pacman_upgrade
+- name: log system package upgrade for package summary
+  import_tasks: log-pkg.yml
+  vars:
+    process: system package upgrade
+    task_result: "{{ pacman_upgrade if desktop else apt_upgrade }}"
 - name: install target system packages
   become: true
   package:
     state: present
     name: "{{ package_list.system.values() | list | flatten }}"
+  register: system_install
+- name: log system package installation for package summary
+  import_tasks: log-pkg.yml
+  vars:
+    process: system package installation
+    task_result: "{{ system_install }}"
 
 - name: (server) skip flatpak and aur packages
   when: server
@@ -53,6 +66,12 @@
     method: user
     state: latest
     name: "{{ package_list.flatpak }}"
+  register: flatpak_pull
+- name: log flatpak installation/upgrade for package summary
+  import_tasks: log-pkg.yml
+  vars:
+    process: flatpak package pull
+    task_result: "{{ flatpak_pull }}"
 
 # aur
 - name: set makepkg config to use doas for privilege escalation
