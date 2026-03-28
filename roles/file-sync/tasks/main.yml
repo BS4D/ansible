@@ -12,6 +12,14 @@
   fail:
     msg: "backup marker missing, please use rclone to restore home server files"
 
+- name: (server) create a cronjob for file backup
+  when: server
+  cron:
+    name: 'file backup'
+    minute: 0
+    hour: 4
+    job: '$HOME/automation/backup.sh'
+
 - name: (desktop) set up syncthing directories
   when: desktop
   loop: "{{ syncthing_directories }}"
