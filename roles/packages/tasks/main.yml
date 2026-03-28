@@ -12,6 +12,11 @@
     components: [main]
     signed_by: "{{ tailscale_deb_url }}/{{ debian_release_name }}.noarmor.gpg"
     install_python_debian: true
+  register: tailscale_repo
+- name: (server) update apt cache to pull tailscale
+  when: tailscale_repo.changed
+  apt:
+    update_cache: true
 - name: (server) run system update
   when: server
   become: true
