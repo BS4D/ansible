@@ -36,3 +36,10 @@
 
     - role: services
       tags: services
+
+  post_tasks:
+    - name: print the package summary
+      when: package_summary is defined and package_summary != ''
+      debug:
+        var: package_summary
+      tags: packages

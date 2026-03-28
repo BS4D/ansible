@@ -10,3 +10,9 @@
   command:
     chdir: "{{ ansible_facts.env.HOME }}/git/aur/{{ package_name }}"
     cmd: makepkg --syncdeps --install --noconfirm
+  register: aur_pull
+
+- import_tasks: log-pkg.yml
+  vars:
+    process: "aur package pull - {{ package_name }}:"
+    task_result: "{{ aur_pull }}"
