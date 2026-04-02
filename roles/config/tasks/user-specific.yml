@@ -1,6 +1,11 @@
 ---
+- name: create ~/.config directory for {{ item.user }}
+  become: "{{ item.become }}"
+  file:
+    state: directory
+    path: "{{ item.home }}/.config"
+
 - name: set zsh as the default shell for {{ item.user }}
-  become: true
   user:
     name: "{{ item.user }}"
     shell: /usr/bin/zsh
@@ -16,3 +21,10 @@
     state: link
     src: "{{ item.home }}/.config/zsh/.zshenv"
     dest: "{{ item.home }}/.zshenv"
+
+- name: symlink nvim config to ~/.config for {{ item.user }}
+  when: desktop
+  file:
+    state: link
+    src: "{{ ansible_facts.env.HOME }}/git/nvim"
+    dest: "{{ item.home }}/.config/nvim"

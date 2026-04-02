@@ -7,16 +7,7 @@
     src: "{{ item.src }}"
     dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}"
 
-- name: create ~/.config directory for both users
-  loop:
-    - {path: /root, become: true}
-    - {path: "{{ ansible_facts.env.HOME }}", become: false}
-  become: "{{ item.become }}"
-  file:
-    state: directory
-    path: "{{ item.path }}/.config"
-
-- name: set up zsh for both users
+- name: configure user-specific settings
   loop:
     - {user: root, home: /root, become: true}
     - {
@@ -25,7 +16,7 @@
       become: false
     }
   include_tasks:
-    file: zsh.yml
+    file: user-specific.yml
     apply:
       become: "{{ item.become }}"
 
@@ -35,10 +26,6 @@
     state: link
     src: /usr/bin/nvim
     dest: /usr/bin/vim
-
-- name: set up neovim
-  when: desktop
-  import_tasks: nvim.yml
 
 - name: set up vdirsyncer
   when: desktop
