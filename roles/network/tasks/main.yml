@@ -1,12 +1,12 @@
 ---
-- name: (desktop) check internet access
+- name: check internet access
   when: desktop
   command: ping -c 1 1.1.1.1
   register: ping
   changed_when: false
   ignore_errors: true
 
-- name: (desktop) set up the wifi connection
+- name: set up the wifi connection
   when:
     - desktop
     - ping.failed
@@ -28,14 +28,14 @@
   when: "'Status: inactive' in firewall.stdout"
   import_tasks: firewall.yml
 
-- name: (desktop) create the user ssh key
+- name: create the user ssh key
   when: desktop
   user:
     name: "{{ ansible_facts.env.USER }}"
     generate_ssh_key: true
     ssh_key_type: ed25519
 
-- name: (desktop) create the home server host entry
+- name: create the home server host entry
   when:
     - desktop
     - "'ip' in home_server"
@@ -45,7 +45,7 @@
     regexp: ^.*\s{{ home_server.hostname }}$
     line: "{{ home_server.ip }} {{ home_server.hostname }}"
 
-- name: (server) add the pc user public ssh key to authorized keys
+- name: add the pc user public ssh key to authorized keys
   when: server
   authorized_key:
     user: "{{ ansible_facts.env.USER }}"

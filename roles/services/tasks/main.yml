@@ -1,5 +1,5 @@
 ---
-- name: (desktop) allow kdeconnect traffic in ufw
+- name: allow kdeconnect traffic in ufw
   when: desktop
   become: true
   loop:
@@ -17,7 +17,7 @@
     rule: allow
     name: syncthing
 
-- name: (server) allow syncthing GUI traffic in ufw
+- name: allow syncthing GUI traffic in ufw
   when: server
   become: true
   ufw:
@@ -30,7 +30,7 @@
     state: reloaded
   changed_when: false
 
-- name: (desktop) sync vdirsyncer with the dav server
+- name: sync vdirsyncer with the dav server
   when: desktop
   shell: |
     vdirsyncer discover
@@ -38,7 +38,7 @@
   register: vdirsyncer_sync
   changed_when: "'uploading' in vdirsyncer_sync.stderr"
 
-- name: (desktop) configure the vdirsyncer timer service
+- name: configure the vdirsyncer timer service
   when: desktop
   become: true
   loop:

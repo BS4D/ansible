@@ -36,15 +36,15 @@
     src: /usr/bin/nvim
     dest: /usr/bin/vim
 
-- name: (desktop) set up neovim
+- name: set up neovim
   when: desktop
   import_tasks: nvim.yml
 
-- name: (desktop) set up vdirsyncer
+- name: set up vdirsyncer
   when: desktop
   import_tasks: vdirsyncer.yml
 
-- name: (desktop) add user to the docker group
+- name: add user to the docker group
   when: desktop
   become: true
   user:
@@ -52,7 +52,7 @@
     groups: docker
     append: true
 
-- name: (desktop) enable sddm autologin
+- name: enable sddm autologin
   when: desktop
   become: true
   blockinfile:

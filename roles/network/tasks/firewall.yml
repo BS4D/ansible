@@ -1,5 +1,5 @@
 ---
-- name: (server) allow ssh connections in the home server firewall
+- name: allow ssh connections in the home server firewall
   when: server
   become: true
   ufw:

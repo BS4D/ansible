@@ -1,18 +1,18 @@
 ---
-- name: (server) check if the backup marker exists
+- name: check if the backup marker exists
   when: server
   stat:
     path: "{{ ansible_facts.env.HOME }}/.rcloned"
   register: backup_marker
 
-- name: (server) fail if the backup marker is missing
+- name: fail if the backup marker is missing
   when:
     - server
     - not backup_marker.stat.exists
   fail:
     msg: "backup marker missing, please use rclone to restore home server files"
 
-- name: (server) create a cronjob for file backup
+- name: create a cronjob for file backup
   when: server
   cron:
     name: 'file backup'
@@ -20,7 +20,7 @@
     hour: 4
     job: '$HOME/automation/backup.sh'
 
-- name: (desktop) set up syncthing directories
+- name: set up syncthing directories
   when: desktop
   loop: "{{ syncthing_directories }}"
   include_tasks: syncthing_dir.yml

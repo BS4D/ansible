@@ -1,5 +1,5 @@
 ---
-- name: (desktop) check access to github
+- name: check access to github
   when: desktop
   command: ssh -T git@github.com
   register: github_access
@@ -30,7 +30,7 @@
   register: remote_setup
   changed_when: "'remotes unchanged' not in remote_setup.stdout"
 
-- name: (desktop) pull repositories
+- name: pull repositories
   loop: "{{ git_repositories }}"
   when:
     - desktop
@@ -41,7 +41,7 @@
   register: pull
   changed_when: "'changed' in pull.stdout"
 
-- name: (desktop) push to all remotes
+- name: push to all remotes
   loop: "{{ git_repositories }}"
   when: desktop
   shell:
@@ -57,7 +57,7 @@
     | reject('match', 'Everything up-to-date')
     | length > 0
 
-- name: (server) pull repositories
+- name: pull repositories
   when: server
   loop: "{{ git_repositories }}"
   shell:
