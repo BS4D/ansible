@@ -1,73 +1,73 @@
 ---
-- name: allow kdeconnect traffic in ufw
+- name: Allow kdeconnect traffic in ufw
   when: desktop
   become: true
   loop:
     - tcp
     - udp
-  ufw:
+  community.general.ufw:
     rule: allow
     port: 1714:1764
     proto: "{{ item }}"
     comment: "kde connect"
 
-- name: allow syncthing traffic in ufw
+- name: Allow syncthing traffic in ufw
   become: true
-  ufw:
+  community.general.ufw:
     rule: allow
     name: syncthing
 
-- name: allow syncthing GUI traffic in ufw
+- name: Allow syncthing GUI traffic in ufw
   when: server
   become: true
-  ufw:
+  community.general.ufw:
     rule: allow
     name: syncthing-gui
 
-- name: reload ufw to apply changes
+- name: Reload ufw to apply changes
   become: true
-  ufw:
+  community.general.ufw:
     state: reloaded
   changed_when: false
 
-- name: sync vdirsyncer with the dav server
+- name: Sync vdirsyncer with the dav server
   when: desktop
-  shell: |
+  ansible.builtin.shell: |
     vdirsyncer discover
     vdirsyncer sync
-  register: vdirsyncer_sync
-  changed_when: "'uploading' in vdirsyncer_sync.stderr"
+  register: services_vdirsyncer_sync
+  changed_when: "'uploading' in services_vdirsyncer_sync.stderr"
 
-- name: configure the vdirsyncer timer service
+- name: Configure the vdirsyncer timer service
   when: desktop
   become: true
   loop:
     - {var: "OnBootSec", value: '1m'}
     - {var: "OnUnitActiveSec", value: '5m'}
     - {var: "AccuracySec", value: '1m'}
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/usr/lib/systemd/user/vdirsyncer.timer"
     regexp: "{{ item.var }}="
     line: "{{ item.var }}={{ item.value }}"
-  register: vdirsyncer_timer_config
+  register: services_vdirsyncer_timer_config
 
-- name: enable systemd system services
+- name: Enable systemd system services
   when: services.system is defined
   become: true
   loop: "{{ services.system }}"
-  systemd:
+  ansible.builtin.systemd:
     state: started
     enabled: true
     name: "{{ item }}"
 
-- name: enable systemd user services
+- name: Enable systemd user services
   when: services.user is defined
   loop: "{{ services.user }}"
   vars:
     restart_conditions:
       - "{{ item == 'vdirsyncer.timer' }}"
-      - "{{ vdirsyncer_timer_config.changed }}"
-  systemd:
+      - "{{ services_vdirsyncer_timer_config.changed }}"
+  ansible.builtin.systemd:
     scope: user
     state: "{{ 'restarted' if restart_conditions is all else 'started' }}"
     enabled: true

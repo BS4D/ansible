@@ -1,17 +1,18 @@
 ---
-- name: add dav password to the python keyring
+- name: Add dav password to the python keyring
   environment:
     DAV_USER: "{{ dav.username }}"
     DAV_PASSWORD: "{{ dav.password }}"
-  script:
+  ansible.builtin.script:
     cmd: set_dav_password.py
-  register: dav_password
-  changed_when: "'password updated' in dav_password.stdout"
+  register: config_dav_password
+  changed_when: "'password updated' in config_dav_password.stdout"
 
-- name: create vdirsyncer collection directories
+- name: Create vdirsyncer collection directories
   loop:
     - "{{ ansible_facts.env.HOME }}/.vdirsyncer/calendars/default"
     - "{{ ansible_facts.env.HOME }}/.vdirsyncer/addressbooks/default"
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ item }}"
+    mode: '0755'

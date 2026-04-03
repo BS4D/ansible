@@ -1,29 +1,20 @@
 ---
-- name: check if ~/{{ item.dest }} is already being synced
-  stat:
-    path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/.stfolder"
-  register: stfolder
+- name: Copy syncthing directory (~/{{ item.dest }})
+  ansible.posix.synchronize:
+    src: "{{ home_server.hostname }}:syncthing/{{ item.src }}/"
+    dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/"
 
-- block:
-    - name: create the ~/{{ item.dest }} directory
-      file:
-        state: directory
-        path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}"
+- name: Check if stignore.txt exists (~/{{ item.dest }})
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/stignore.txt"
+  register: stignore
 
-    - name: copy ~/{{ item.dest }} contents from the home server
-      synchronize:
-        src: "{{ home_server.hostname }}:syncthing/{{ item.src }}/"
-        dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/"
-
-    - name: check if ~/{{ item.dest }}/stignore.txt exists
-      stat:
-        path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/stignore.txt"
-      register: stignore
-
-    - name: include stignore.txt in .stignore for ~/{{ item.dest }}
-      when: stignore.stat.exists
-      lineinfile:
-        create: true
-        path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/.stignore"
-        line: "#include stignore.txt"
-  when: not stfolder.stat.isdir is defined or not stfolder.stat.isdir
+- name: Include stignore.txt in .stignore (~/{{ item.dest }})
+  when:
+    - stignore.stat.exists
+    - stignore.stat.isreg
+  ansible.builtin.lineinfile:
+    create: true
+    path: "{{ ansible_facts.env.HOME }}/{{ item.dest }}/.stignore"
+    mode: '0644'
+    line: '#include stignore.txt'

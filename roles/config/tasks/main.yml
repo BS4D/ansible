@@ -1,13 +1,14 @@
 ---
-- name: set up various config files
+- name: Set up various config files
   loop:
     - {src: gitconfig.j2, dest: .gitconfig}
     - {src: ssh-config.j2, dest: .ssh/config}
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ ansible_facts.env.HOME }}/{{ item.dest }}"
+    mode: '0644'
 
-- name: configure user-specific settings
+- name: Configure user-specific settings
   loop:
     - {user: root, home: /root, become: true}
     - {
@@ -15,36 +16,37 @@
       home: "{{ ansible_facts.env.HOME }}",
       become: false
     }
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: user-specific.yml
     apply:
       become: "{{ item.become }}"
 
-- name: symlink the neovim binary to vim
+- name: Symlink the neovim binary to vim
   become: true
-  file:
+  ansible.builtin.file:
     state: link
     src: /usr/bin/nvim
     dest: /usr/bin/vim
 
-- name: set up vdirsyncer
+- name: Set up vdirsyncer
   when: desktop
-  import_tasks: vdirsyncer.yml
+  ansible.builtin.import_tasks: vdirsyncer.yml
 
-- name: add user to the docker group
+- name: Add user to the docker group
   when: desktop
   become: true
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_facts.env.USER }}"
     groups: docker
     append: true
 
-- name: enable sddm autologin
+- name: Enable sddm autologin
   when: desktop
   become: true
-  blockinfile:
+  ansible.builtin.blockinfile:
     create: true
     path: /etc/sddm.conf.d/kde_settings.conf
+    mode: '0644'
     block: |
       [Autologin]
       Relogin=false

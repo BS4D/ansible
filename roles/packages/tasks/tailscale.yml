@@ -1,0 +1,19 @@
+---
+- name: Configure the tailscale apt repository
+  become: true
+  ansible.builtin.deb822_repository:
+    name: tailscale
+    state: present
+    types: [deb]
+    uris: "{{ tailscale_deb_url }}"
+    suites: ["{{ debian_release_name }}"]
+    components: [main]
+    signed_by: "{{ tailscale_deb_url }}/{{ debian_release_name }}.noarmor.gpg"
+    install_python_debian: true
+  register: packages_tailscale_repo
+
+- name: Update apt cache with the new tailscale repository # noqa no-handler
+  when: packages_tailscale_repo.changed
+  become: true
+  ansible.builtin.apt:
+    update_cache: true

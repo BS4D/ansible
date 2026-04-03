@@ -1,59 +1,60 @@
 ---
-- name: check internet access
+- name: Check internet access
   when: desktop
-  command: ping -c 1 1.1.1.1
-  register: ping
+  ansible.builtin.command: ping -c 1 1.1.1.1
+  register: network_ping
   changed_when: false
   ignore_errors: true
 
-- name: set up the wifi connection
+- name: Set up the wifi connection
   when:
     - desktop
-    - ping.failed
-  import_tasks: wifi.yml
+    - network_ping.failed
+  ansible.builtin.import_tasks: wifi.yml
 
-- name: ensure required network packages are installed
+- name: Ensure required network packages are installed
   become: true
-  package:
+  ansible.builtin.package:
     state: present
     name: "{{ package_list.system.network }}"
 
-- name: check if firewall is enabled
+- name: Check if firewall is enabled
   become: true
-  command: ufw status
-  register: firewall
+  ansible.builtin.command: ufw status
+  register: network_firewall
   changed_when: false
 
-- name: set up the firewall
-  when: "'Status: inactive' in firewall.stdout"
-  import_tasks: firewall.yml
+- name: Set up the firewall
+  when: "'Status: inactive' in network_firewall.stdout"
+  ansible.builtin.import_tasks: firewall.yml
 
-- name: create the user ssh key
+- name: Create the user ssh key
   when: desktop
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_facts.env.USER }}"
     generate_ssh_key: true
     ssh_key_type: ed25519
 
-- name: create the home server host entry
+- name: Create the home server host entry
   when:
     - desktop
     - "'ip' in home_server"
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: ^.*\s{{ home_server.hostname }}$
     line: "{{ home_server.ip }} {{ home_server.hostname }}"
 
-- name: add the pc user public ssh key to authorized keys
+- name: Add the pc user public ssh key to authorized keys
   when: server
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ ansible_facts.env.USER }}"
     key: "{{ lookup('file', lookup ('env', 'HOME') ~ '/.ssh/id_ed25519.pub') }}"
 
-- name: automatically accept new host keys in ssh connections
-  lineinfile:
+- name: Automatically accept new host keys in ssh connections
+  ansible.builtin.lineinfile:
     create: true
     path: "{{ ansible_facts.env.HOME }}/.ssh/config"
+    mode: '0644'
     regexp: ^StrictHostKeyChecking
     line: StrictHostKeyChecking=accept-new

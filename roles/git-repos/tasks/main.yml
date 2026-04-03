@@ -1,50 +1,46 @@
 ---
-- name: check access to github
+- name: Check access to github
   when: desktop
-  command: ssh -T git@github.com
+  ansible.builtin.command: ssh -T git@github.com
   register: github_access
   changed_when: false
   failed_when: github_access.rc != 1
   ignore_errors: true
 
-- name: clone all repositories
+- name: Clone all repositories # noqa: latest[git]
   loop: "{{ git_repositories }}"
-  git:
+  ansible.builtin.git:
     repo: "{{ git.remotes.home_server }}/{{ item }}"
     dest: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     update: false
 
-- name: configure remotes for all repositories
+- name: Configure remotes for all repositories
   loop: "{{ git_repositories }}"
   environment:
-    GITHUB_ACCESS: "{{
-      github_access is success
-      and github_access is not skipped
-      | lower
-    }}"
+    GITHUB_ACCESS: "{{ github_access is success and github_access is not skipped | lower }}"
     GITHUB_URL: "{{ git.remotes.github }}/{{ item }}"
     SERVER_URL: "{{ git.remotes.home_server }}/{{ item }}"
-  script:
+  ansible.builtin.script:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     cmd: git_remote_setup.sh
   register: remote_setup
   changed_when: "'remotes unchanged' not in remote_setup.stdout"
 
-- name: pull repositories
+- name: Pull repositories # noqa: command-instead-of-module
   loop: "{{ git_repositories }}"
   when:
     - desktop
     - item != "ansible"
-  shell:
+  ansible.builtin.shell:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     cmd: git pull --rebase origin $(git branch --show-current)
   register: pull
   changed_when: "'changed' in pull.stdout"
 
-- name: push to all remotes
+- name: Push to all remotes
   loop: "{{ git_repositories }}"
   when: desktop
-  shell:
+  ansible.builtin.shell:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     cmd: |
       set -e
@@ -57,10 +53,10 @@
     | reject('match', 'Everything up-to-date')
     | length > 0
 
-- name: pull repositories
+- name: Pull repositories # noqa: command-instead-of-module
   when: server
   loop: "{{ git_repositories }}"
-  shell:
+  ansible.builtin.shell:
     chdir: "{{ ansible_facts.env.HOME }}/git/{{ item }}"
     cmd: git pull --rebase origin $(git branch --show-current)
   register: pull

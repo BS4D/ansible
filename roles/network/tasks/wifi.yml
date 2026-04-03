@@ -1,30 +1,30 @@
 ---
-- name: get the wifi interface name
-  set_fact:
-    wifi_interface: >-
+- name: Get the wifi interface name
+  ansible.builtin.set_fact:
+    network_wifi_interface: >-
       {{ ansible_facts.interfaces |
         select('match', '^w') |
         list |
         first }}
 
-- name: create the home wifi connection
-  nmcli:
+- name: Create the home wifi connection
+  community.general.nmcli:
     state: present
     conn_name: home
-    ifname: "{{ wifi_interface }}"
+    ifname: "{{ network_wifi_interface }}"
     type: wifi
     ssid: "{{ home_wifi.ssid }}"
     wifi_sec:
       key-mgmt: wpa-psk
       psk: "{{ home_wifi.psk }}"
 
-- name: bring up the home wifi connection
-  nmcli:
+- name: Bring up the home wifi connection
+  community.general.nmcli:
     state: up
     conn_name: home
 
-- name: wait for internet access
-  wait_for:
+- name: Wait for internet access
+  ansible.builtin.wait_for:
     host: 1.1.1.1
     port: 53
     timeout: 30

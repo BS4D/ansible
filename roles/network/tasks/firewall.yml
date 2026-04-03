@@ -1,20 +1,20 @@
 ---
-- name: allow ssh connections in the home server firewall
+- name: Allow ssh connections in the home server firewall
   when: server
   become: true
-  ufw:
+  community.general.ufw:
     rule: allow
     name: ssh
 
-- name: enable ufw
+- name: Enable ufw
   become: true
-  ufw:
+  community.general.ufw:
     state: enabled
     default: deny
 
-- name: enable and start the ufw service
+- name: Enable and start the ufw service
   become: true
-  systemd:
+  ansible.builtin.systemd:
     state: started
     enabled: true
     name: ufw

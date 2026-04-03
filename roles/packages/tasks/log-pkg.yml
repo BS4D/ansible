@@ -1,8 +1,8 @@
 ---
-- name: append {{ process }} to package summary
-  set_fact:
-    package_summary: |
-      {{ package_summary | default('') }}
+- name: Append to package summary - {{ process }} # noqa: no-handler
+  ansible.builtin.set_fact:
+    packages_summary: |
+      {{ packages_summary | default('') }}
       - {{ process }}:
           {{ task_result.stdout | default('') | indent }}
   when: task_result.changed

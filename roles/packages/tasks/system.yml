@@ -1,0 +1,33 @@
+---
+- name: Run system update
+  when: server
+  become: true
+  ansible.builtin.apt:
+    upgrade: dist
+  register: packages_apt_upgrade
+
+- name: Run system update
+  when: desktop
+  become: true
+  community.general.pacman:
+    upgrade: true
+  register: packages_pacman_upgrade
+
+- name: Append to package summary - system update
+  ansible.builtin.import_tasks: log-pkg.yml
+  vars:
+    process: system package upgrade
+    task_result: "{{ packages_pacman_upgrade if desktop else packages_apt_upgrade }}"
+
+- name: Install target system packages
+  become: true
+  ansible.builtin.package:
+    state: present
+    name: "{{ package_list.system.values() | list | flatten }}"
+  register: packages_system_install
+
+- name: Append to package summary - system install
+  ansible.builtin.import_tasks: log-pkg.yml
+  vars:
+    process: system package installation
+    task_result: "{{ packages_system_install }}"

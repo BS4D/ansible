@@ -1,0 +1,24 @@
+---
+- name: Delete the system flathub remote
+  become: true
+  community.general.flatpak_remote:
+    state: absent
+    name: flathub
+- name: Set up the user flathub remote
+  community.general.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    method: user
+
+- name: Install/update flatpak apps
+  community.general.flatpak:
+    method: user
+    state: latest
+    name: "{{ package_list.flatpak }}"
+  register: packages_flatpak_pull
+
+- name: Append to package summary - flatpak
+  ansible.builtin.import_tasks: log-pkg.yml
+  vars:
+    process: flatpak package pull
+    task_result: "{{ packages_flatpak_pull }}"

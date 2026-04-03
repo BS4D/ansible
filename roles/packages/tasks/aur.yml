@@ -1,0 +1,30 @@
+---
+- name: Set makepkg config to use doas for privilege escalation
+  ansible.builtin.lineinfile:
+    create: true
+    path: "{{ ansible_facts.env.HOME }}/.makepkg.conf"
+    mode: '0644'
+    regex: ^PACMAN_AUTH=.*$
+    line: "PACMAN_AUTH=('doas')"
+
+- name: Clone/update aur package repositories # noqa: latest[git]
+  loop: "{{ package_list.aur }}"
+  ansible.builtin.git:
+    repo: "https://aur.archlinux.org/{{ item }}.git"
+    dest: "{{ ansible_facts.env.HOME }}/git/aur/{{ item }}"
+  register: packages_aur_repos
+
+- name: Install/update aur packages # noqa: no-changed-when
+  loop: "{{ packages_aur_repos.results | selectattr('changed') | map(attribute='item') }}"
+  ansible.builtin.command:
+    chdir: "{{ ansible_facts.env.HOME }}/git/aur/{{ item }}"
+    cmd: makepkg --syncdeps --install --noconfirm
+  register: packages_aur_make
+
+- name: Append to package summary - aur
+  loop: "{{ packages_aur_make.results }}"
+  no_log: true
+  ansible.builtin.include_tasks: log-pkg.yml
+  vars:
+    process: "aur package make - {{ item.item }}"
+    task_result: "{{ item }}"
