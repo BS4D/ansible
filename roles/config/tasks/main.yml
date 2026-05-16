@@ -28,10 +28,6 @@
     src: /usr/bin/nvim
     dest: /usr/bin/vim
 
-- name: Set up vdirsyncer
-  when: desktop
-  ansible.builtin.import_tasks: vdirsyncer.yml
-
 - name: Add user to the docker group
   when: desktop
   become: true

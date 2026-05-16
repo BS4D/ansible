@@ -30,27 +30,6 @@
     state: reloaded
   changed_when: false
 
-- name: Sync vdirsyncer with the dav server
-  when: desktop
-  ansible.builtin.shell: |
-    vdirsyncer discover
-    vdirsyncer sync
-  register: services_vdirsyncer_sync
-  changed_when: "'uploading' in services_vdirsyncer_sync.stderr"
-
-- name: Configure the vdirsyncer timer service
-  when: desktop
-  become: true
-  loop:
-    - {var: "OnBootSec", value: '1m'}
-    - {var: "OnUnitActiveSec", value: '5m'}
-    - {var: "AccuracySec", value: '1m'}
-  ansible.builtin.lineinfile:
-    path: "/usr/lib/systemd/user/vdirsyncer.timer"
-    regexp: "{{ item.var }}="
-    line: "{{ item.var }}={{ item.value }}"
-  register: services_vdirsyncer_timer_config
-
 - name: Enable systemd system services
   when: services.system is defined
   become: true
@@ -63,12 +42,8 @@
 - name: Enable systemd user services
   when: services.user is defined
   loop: "{{ services.user }}"
-  vars:
-    restart_conditions:
-      - "{{ item == 'vdirsyncer.timer' }}"
-      - "{{ services_vdirsyncer_timer_config.changed }}"
   ansible.builtin.systemd:
     scope: user
-    state: "{{ 'restarted' if restart_conditions is all else 'started' }}"
+    state: started
     enabled: true
     name: "{{ item }}"
