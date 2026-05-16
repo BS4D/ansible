@@ -3,12 +3,6 @@
   hosts: "{{ lookup('pipe', 'hostnamectl hostname') }}, server"
 
   pre_tasks:
-    - name: Set the combined vars dict elements as facts
-      loop: "{{ combined_vars | dict2items }}"
-      ansible.builtin.set_fact:
-        "{{ item.key }}": "{{ item.value }}"
-      tags: always
-
     - name: Update the package manager cache
       become: true
       ansible.builtin.package:
