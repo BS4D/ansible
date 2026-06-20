@@ -1,0 +1,14 @@
+---
+- name: Configure prometheus node_exporter to include the /mnt/storage filesystem
+  ansible.builtin.lineinfile:
+    create: true
+    path: /etc/default/prometheus-node-exporter
+    mode: '0644'
+    regexp: ^ARGS=
+    line: 'ARGS=''--collector.filesystem.mount-points-include="^(/|/mnt/storage)$"'''
+
+- name: Configure prometheus scrape targets
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    mode: '0644'

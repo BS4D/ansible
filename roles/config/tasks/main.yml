@@ -28,6 +28,11 @@
     src: /usr/bin/nvim
     dest: /usr/bin/vim
 
+- name: Configure the monitoring tools
+  when: server
+  become: true
+  ansible.builtin.import_tasks: monitoring.yml
+
 - name: Add user to the docker group
   when: desktop
   become: true
