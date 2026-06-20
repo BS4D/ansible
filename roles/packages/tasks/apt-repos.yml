@@ -1,0 +1,20 @@
+---
+- name: Configure apt repositories
+  become: true
+  loop: "{{ apt_repos }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    state: present
+    types: [deb]
+    uris: "{{ item.uris }}"
+    suites: "{{ item.suites }}"
+    components: [main]
+    signed_by: "{{ item.signed_by }}"
+    install_python_debian: true
+  register: packages_tailscale_repo
+
+- name: Update apt cache with new repositories # noqa no-handler
+  when: packages_tailscale_repo.changed
+  become: true
+  ansible.builtin.apt:
+    update_cache: true

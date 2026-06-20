@@ -1,7 +1,7 @@
 ---
-- name: Set up tailscale
+- name: Configure apt repositories
   when: server
-  ansible.builtin.import_tasks: tailscale.yml
+  ansible.builtin.import_tasks: apt-repos.yml
 
 - name: Install and update system packages
   ansible.builtin.import_tasks: system.yml
