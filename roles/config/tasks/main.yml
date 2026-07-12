@@ -28,6 +28,12 @@
     src: /usr/bin/nvim
     dest: /usr/bin/vim
 
+- name: Pull the zsh plugins # noqa latest[git]
+  loop: "{{ zsh_plugins }}"
+  ansible.builtin.git:
+    repo: "{{ item }}"
+    dest: "$ZDOTDIR/plugins/{{ item | basename }}"
+
 - name: Configure the monitoring tools
   when: server
   become: true
