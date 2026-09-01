@@ -1,0 +1,55 @@
+---
+- name: Configure ollama to serve on 0.0.0.0
+  become: true
+  ansible.builtin.lineinfile:
+    path: "/usr/lib/systemd/system/ollama.service"
+    insertafter: true
+    regexp: '^Environment='
+    line: 'Environment="OLLAMA_HOST=0.0.0.0:11434"'
+  notify: Restart ollama
+
+- name: Configure the nvidia-ctk runtime for docker
+  become: true
+  ansible.builtin.command:
+    cmd: nvidia-ctk runtime configure --runtime=docker
+    creates: /etc/docker/daemon.json
+  notify: Restart docker
+
+- name: Pull the odysseus repository # noqa: latest[git]
+  ansible.builtin.git:
+    repo: https://github.com/odysseus-dev/odysseus.git
+    dest: "{{ ansible_facts.env.HOME }}/git/odysseus"
+  notify: Compose odysseus
+
+- name: Copy the odysseus env file
+  ansible.builtin.copy:
+    src: "{{ ansible_facts.env.HOME }}/git/odysseus/.env.example"
+    dest: "{{ ansible_facts.env.HOME }}/git/odysseus/.env"
+    mode: '0644'
+    force: false
+  notify: Compose odysseus
+
+- name: Configure a chromadb mount for odysseus
+  ansible.builtin.copy:
+    content: |
+      services:
+        chromadb:
+          volumes:
+            - ${APP_DATA_DIR:-./data}/chromadb:/chroma/chroma
+    dest: "{{ ansible_facts.env.HOME }}/git/odysseus/data.local.yml"
+    mode: '0644'
+  notify: Compose odysseus
+
+- name: Include nvidia and chromadb mount in the COMPOSE_FILE for odysseus
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_facts.env.HOME }}/git/odysseus/.env"
+    regexp: '^#?COMPOSE_FILE='
+    line: 'COMPOSE_FILE=docker-compose.yml:docker/gpu.nvidia.yml:data.local.yml'
+  notify: Compose odysseus
+
+- name: Symlink odysseus data from syncthing
+  ansible.builtin.file:
+    state: link
+    force: true
+    src: "{{ ansible_facts.env.HOME }}/git/syncthing/odysseus/data"
+    dest: "{{ ansible_facts.env.HOME }}/git/odysseus/data"

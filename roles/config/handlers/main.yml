@@ -1,0 +1,18 @@
+---
+- name: Restart ollama
+  become: true
+  ansible.builtin.systemd:
+    name: ollama
+    state: restarted
+
+- name: Restart docker
+  become: true
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+
+- name: Compose odysseus
+  ansible.builtin.command:
+    chdir: "{{ ansible_facts.env.HOME }}/git/odysseus"
+    cmd: docker compose up -d --build
+  changed_when: true
