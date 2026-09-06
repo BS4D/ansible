@@ -59,7 +59,3 @@
       Relogin=false
       Session=plasmax11
       User={{ ansible_facts.env.USER }}
-
-- name: Configure odysseus and ollama
-  when: desktop
-  ansible.builtin.import_tasks: odysseus.yml
