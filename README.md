@@ -132,6 +132,6 @@ The most important part here is the `zsh` and `nvim` setup.
 ### services
 A role for system service management.
 - configure the `ufw` rules
-  - reload `ufw` if anything changed
   - this is done here and not in the network role because some named `ufw` rules come with specific packages
 - enable all desired `systemd` services
+- reload `ufw` if the rules changed (handler)

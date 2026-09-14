@@ -9,13 +9,7 @@
     port: "{{ item.port | default(omit) }}"
     proto: "{{ item.proto | default(omit) }}"
     comment: "{{ item.comment | default(omit) }}"
-  register: services_ufw_config
-
-- name: Reload ufw to apply changes # noqa: no-handler
-  when: services_ufw_config.changed
-  become: true
-  community.general.ufw:
-    state: reloaded
+  notify: Reload ufw
 
 - name: Enable systemd system services
   when: services.system is defined
